@@ -6,6 +6,8 @@ import sys
 from bs4 import BeautifulSoup
 import re
 import os
+from PIL import Image, ImageFilter
+
 
 
 year = sys.argv[1]
@@ -17,9 +19,17 @@ def download(url):
     req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     return urlopen(req).read()
 
-def splitInto(location, name, ext, rows, columns):
-    imgLocation = location + "/" + name + "." + ext
-    from PIL import Image
+def blur(yearInfo, location, name, ext, blurRadiusList):
+    imgLocation = yearInfo + "/" + location + "/" + name + "." + ext
+    catIm = Image.open(imgLocation)
+    index = 0
+    for value in blurRadiusList:
+        blurImage = catIm.filter(ImageFilter.MedianFilter(value))
+        blurImage.save(yearInfo + "/" + location + "/" + name + "_" + str(index) + "." + ext)
+        index = index + 1
+
+def splitInto(yearInfo, location, name, ext, rows, columns):
+    imgLocation = yearInfo + "/" + location + "/" + name + "." + ext
     from random import shuffle
     catIm = Image.open(imgLocation)
     width, height = catIm.size
@@ -36,7 +46,7 @@ def splitInto(location, name, ext, rows, columns):
         for yValue in range(0, (rows*stepY), stepY):
             #print "y-" + str(yValue)
             part = catIm.crop((xValue,yValue, xValue+stepX, yValue+stepY))
-            part.save(location + "/" + name + "_" + str(ids[count]) + "." + ext)
+            part.save(yearInfo + "/" + location + "/" + name + "_" + str(ids[count]) + "." + ext)
             count = count + 1
 
 #download page
@@ -61,10 +71,10 @@ for movie in soup.find_all("img", class_="lazy"):
 
         poster = download(imgUrl)
         location=name.replace(" ", "_")
-        os.mkdir(location)
-        imageName = location + "/" + location + ".jpg"
+        os.makedirs(yearInfo + "/" + location)
+        imageName = yearInfo + "/" + location + "/" + location + ".jpg"
         with open(imageName, "wb") as movieImg:
             movieImg.write(poster)
-        splitInto(location, location, "jpg",4,4)
-        #:break
+        blur(yearInfo, location, location, "jpg", [11,9,7,5,3])
+        break
         print "-----------------------------------------"
