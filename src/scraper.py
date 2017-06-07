@@ -75,6 +75,6 @@ for movie in soup.find_all("img", class_="lazy"):
         imageName = yearInfo + "/" + location + "/" + location + ".jpg"
         with open(imageName, "wb") as movieImg:
             movieImg.write(poster)
-        blur(yearInfo, location, location, "jpg", [11,9,7,5,3])
+        blur(yearInfo, location, location, "jpg", [45,33,21,13,5,])
         break
         print "-----------------------------------------"
