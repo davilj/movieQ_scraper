@@ -23,10 +23,19 @@ movieDir = sys.argv[1]
 destDir = sys.argv[2]
 print 'amazonfy movies in: ' + movieDir
 
+#random int, check if already in movie db
+def getKey():
+    while True:
+        randomInt = randint(0, 32000)
+        key = 'p' + str(randomInt)
+        if not (key in movieDB):
+            return key
+
+
 def extractProp(mailFile):
     nameKey = mailFile.replace(".jpg","")
     name = nameKey.replace("_"," ")
-    value = (name, uuid.uuid4().urn[9:])
+    value = (name, getKey())
     movieDB[nameKey]=value
     return (nameKey, value)
 
@@ -101,11 +110,6 @@ def makeAmazonFiles(fromDir, toDir):
 
             makeMovieFile(toDir, values, posters, fileDest)
             break
-
-
-
-
-
 
 populateMovieDB(movieDir)
 populateMovieList()
