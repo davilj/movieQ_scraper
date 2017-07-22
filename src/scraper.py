@@ -58,6 +58,8 @@ print 'completed'
 #soup
 print 'parsing....'
 soup = BeautifulSoup(webpage, "html.parser")
+
+cwd = os.getcwd()
 for movie in soup.find_all("img", class_="lazy"):
         name=movie['alt']
         posterS=movie['data-original']
@@ -71,10 +73,10 @@ for movie in soup.find_all("img", class_="lazy"):
 
         poster = download(imgUrl)
         location=name.replace(" ", "_")
-        os.makedirs(yearInfo + "/" + location)
+        os.makedirs(cwd + "/" + yearInfo + "/" + location)
         imageName = yearInfo + "/" + location + "/" + location + ".jpg"
         with open(imageName, "wb") as movieImg:
             movieImg.write(poster)
-        blur(yearInfo, location, location, "jpg", [45,33,21,13,5,])
-    
+        #blur(yearInfo, location, location, "jpg", [45,33,21,13,5,])
+
         print "-----------------------------------------"

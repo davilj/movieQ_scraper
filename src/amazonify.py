@@ -14,10 +14,13 @@ import sys
 import os
 import uuid
 from random import randint
+import json
 
-
+#main db, store key {name with underscore : (name:code)}
 movieDB = {}
 movieList = []
+movieDict = {}
+scoreDB = {}
 
 movieDir = sys.argv[1]
 destDir = sys.argv[2]
@@ -27,10 +30,10 @@ print 'amazonfy movies in: ' + movieDir
 def getKey():
     while True:
         randomInt = randint(0, 32000)
-        key = 'p' + str(randomInt)
+        #change this for each year
+        key = 'p16_' + str(randomInt)
         if not (key in movieDB):
             return key
-
 
 def extractProp(mailFile):
     nameKey = mailFile.replace(".jpg","")
@@ -87,6 +90,13 @@ def makeMovieFile(toDir, values, posters, mainFile):
     f.close()
     print jsonFile
 
+def buildMovieDict():
+    for key in movieDB.keys():
+        value = movieDB[key]
+        movieDict[value[1]]=value[0]
+        scoreDB[value[1]]=0
+
+
 def makeAmazonFiles(fromDir, toDir):
     os.mkdir(toDir)
     for dirpath, dnames, fnames in os.walk(fromDir):
@@ -98,21 +108,21 @@ def makeAmazonFiles(fromDir, toDir):
             fileDest = os.path.join(toDir, newFile)
             os.rename(fileSrc, fileDest)
             posters = []
-            for index in range(0,5):
-                newSrc = key + "_" + str(index) + '.jpg'
-                fileSrc_ = os.path.join(dirpath, newSrc)
-                newDestination = newSrc.replace(key, values[1])
-                fileDest_ = os.path.join(toDir, newDestination)
-                posters.append(fileDest_)
-                print fileSrc_
-                print fileDest_
-                os.rename(fileSrc_, fileDest_)
 
-            makeMovieFile(toDir, values, posters, fileDest)
+            #makeMovieFile(toDir, values, posters, fileDest)
             break
+
+def writeObject(object,name):
+    f = open(name, 'w')
+    f.write(json.dumps(object))
+    f.flush()
+    f.close()
 
 populateMovieDB(movieDir)
 populateMovieList()
 buildFileProp()
+buildMovieDict()
+writeObject(scoreDB,"scoreDB")
+writeObject(movieDict,"movieDict")
 
 makeAmazonFiles(movieDir, destDir)
